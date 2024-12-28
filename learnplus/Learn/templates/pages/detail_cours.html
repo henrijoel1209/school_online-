@@ -1,0 +1,255 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block title %}{{ cours.titre }} - Détails{% endblock %}
+
+{% block content %}
+<div class="container page__container">
+    <div class="page-section">
+        
+        <!-- En-tête du cours -->
+        <div class="page-separator">
+            <div class="page-separator__text">{{ cours.titre }}</div>
+        </div>
+
+        <!-- Informations du cours -->
+        <div class="card mb-4">
+            {% if cours.image %}
+            <div class="card-header">
+                <img src="{{ cours.image.url }}" 
+                     alt="{{ cours.titre }}"
+                     class="img-fluid rounded">
+            </div>
+            {% endif %}
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h4 class="card-title">Description</h4>
+                        <p>{{ cours.description }}</p>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="card-title">Informations</h4>
+                                <p><strong>Chapitre:</strong> {{ cours.chapitre }}</p>
+                                <p><strong>Matière:</strong> {{ cours.chapitre.matiere }}</p>
+                                <p><strong>Classe:</strong> {{ cours.chapitre.classe }}</p>
+                                <p><strong>Taux de complétion:</strong> {{ completion_rate }}%</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {% if cours.video %}
+                <div class="mb-4">
+                    <h4>Vidéo du cours</h4>
+                    <div class="embed-responsive embed-responsive-16by9">
+                        <video class="embed-responsive-item" controls>
+                            <source src="{{ cours.video.url }}" type="video/mp4">
+                            Votre navigateur ne supporte pas la lecture de vidéos.
+                        </video>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if cours.pdf %}
+                <div class="mb-4">
+                    <h4>Support de cours</h4>
+                    <a href="{{ cours.pdf.url }}" 
+                       class="btn btn-outline-secondary" 
+                       target="_blank">
+                        <i class="material-icons">picture_as_pdf</i>
+                        Télécharger le PDF
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Contenus du cours -->
+        <div class="page-separator">
+            <div class="page-separator__text">Contenus ({{ contents.count }})</div>
+        </div>
+
+        {% for content in contents %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4 class="card-title">{{ content.title }}</h4>
+                <p class="card-subtitle text-muted">{{ content.get_content_type_display }}</p>
+            </div>
+            <div class="card-body">
+                {% if content.content_type == 'text' %}
+                    {{ content.text_content|linebreaks }}
+                {% elif content.content_type == 'image' %}
+                    <img src="{{ content.file_content.url }}" 
+                         alt="{{ content.title }}"
+                         class="img-fluid rounded">
+                {% elif content.content_type == 'pdf' %}
+                    <a href="{{ content.file_content.url }}" 
+                       class="btn btn-outline-secondary"
+                       target="_blank">
+                        <i class="material-icons">picture_as_pdf</i>
+                        Voir le document
+                    </a>
+                {% elif content.content_type == 'video' %}
+                    <div class="embed-responsive embed-responsive-16by9">
+                        <iframe class="embed-responsive-item" 
+                                src="{{ content.video_url }}" 
+                                allowfullscreen></iframe>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <div class="alert alert-info">
+            Aucun contenu disponible pour ce cours.
+        </div>
+        {% endfor %}
+
+        <!-- Quiz -->
+        {% if quizzes %}
+        <div class="page-separator">
+            <div class="page-separator__text">Quiz ({{ quizzes.count }})</div>
+        </div>
+
+        <div class="row card-group-row">
+            {% for quiz in quizzes %}
+            <div class="col-md-6 card-group-row__col">
+                <div class="card card-group-row__card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="flex">
+                                <div class="card-title mb-0">{{ quiz.title }}</div>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <p class="mb-2">{{ quiz.description|truncatewords:20 }}</p>
+                            <p class="mb-0">
+                                <span class="mr-1">{{ quiz.questions.count }}</span>
+                                <small class="text-muted">questions</small>
+                            </p>
+                            {% if quiz.time_limit %}
+                            <p class="mb-0">
+                                <span class="mr-1">{{ quiz.time_limit }}</span>
+                                <small class="text-muted">minutes</small>
+                            </p>
+                            {% endif %}
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'take_quiz' quiz.slug %}" 
+                               class="btn btn-outline-secondary">Commencer le quiz</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Devoirs -->
+        {% if assignments %}
+        <div class="page-separator">
+            <div class="page-separator__text">Devoirs ({{ assignments.count }})</div>
+        </div>
+
+        <div class="row card-group-row">
+            {% for assignment in assignments %}
+            <div class="col-md-6 card-group-row__col">
+                <div class="card card-group-row__card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="flex">
+                                <div class="card-title mb-0">{{ assignment.title }}</div>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <p class="mb-2">{{ assignment.description|truncatewords:20 }}</p>
+                            <p class="mb-0">
+                                <small class="text-muted">Date limite: {{ assignment.due_date }}</small>
+                            </p>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'view_assignment' assignment.slug %}" 
+                               class="btn btn-outline-secondary">Voir le devoir</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Forum -->
+        {% if forum_topics %}
+        <div class="page-separator">
+            <div class="page-separator__text">Forum ({{ forum_topics.count }})</div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex align-items-center">
+                    <div class="flex">
+                        <h4 class="card-title">Discussions</h4>
+                    </div>
+                    <a href="{% url 'create_topic' cours.slug %}" 
+                       class="btn btn-outline-secondary">
+                        Nouvelle discussion
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    {% for topic in forum_topics %}
+                    <div class="list-group-item d-flex align-items-center">
+                        <div class="flex">
+                            <a href="{% url 'view_topic' topic.slug %}" 
+                               class="text-body"><strong>{{ topic.title }}</strong></a>
+                            <div class="d-flex align-items-center">
+                                <small class="text-muted mr-2">
+                                    Par {{ topic.author.get_full_name|default:topic.author.username }}
+                                </small>
+                                <small class="text-muted">
+                                    {{ topic.date_add|timesince }}
+                                </small>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <span class="badge badge-soft-secondary mr-2">
+                                {{ topic.replies.count }} réponses
+                            </span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Marquer le cours comme terminé
+    const markCompletedBtn = document.getElementById('markCompleted');
+    if (markCompletedBtn) {
+        markCompletedBtn.addEventListener('click', function() {
+            fetch("{% url 'mark_course_completed' cours.slug %}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                }
+            });
+        });
+    }
+});
+</script>
+{% endblock %}

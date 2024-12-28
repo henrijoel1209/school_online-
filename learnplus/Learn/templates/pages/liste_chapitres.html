@@ -1,0 +1,82 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block title %}Liste des Chapitres{% endblock %}
+
+{% block content %}
+<div class="container page__container">
+    <div class="page-section">
+        
+        <div class="page-separator">
+            <div class="page-separator__text">Chapitres</div>
+        </div>
+
+        <div class="row card-group-row">
+            {% for chapitre in chapitres %}
+            <div class="col-md-6 col-lg-4 card-group-row__col">
+                <div class="card card-group-row__card">
+                    {% if chapitre.image %}
+                    <img src="{{ chapitre.image.url }}" 
+                         class="card-img-top" 
+                         alt="{{ chapitre.titre }}">
+                    {% endif %}
+                    <div class="card-body d-flex flex-column">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="flex">
+                                <div class="card-title mb-0">{{ chapitre.titre }}</div>
+                                <div class="card-subtitle text-muted">
+                                    {{ chapitre.matiere }} - {{ chapitre.classe }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <p class="mb-2">{{ chapitre.description|truncatewords:20 }}</p>
+                            <p class="mb-0">
+                                <span class="mr-1">{{ chapitre.get_cours.count }}</span>
+                                <small class="text-muted">cours</small>
+                            </p>
+                            {% if chapitre.duree_en_heure %}
+                            <p class="mb-0">
+                                <span class="mr-1">{{ chapitre.duree_en_heure }}</span>
+                                <small class="text-muted">heures</small>
+                            </p>
+                            {% endif %}
+                            {% if chapitre.date_debut and chapitre.date_fin %}
+                            <p class="mb-0">
+                                <small class="text-muted">Du {{ chapitre.date_debut }} au {{ chapitre.date_fin }}</small>
+                            </p>
+                            {% endif %}
+                        </div>
+                        {% if user.student_user %}
+                        <div class="mb-4">
+                            <p class="mb-0">Progression :</p>
+                            <div class="progress" style="height: 4px;">
+                                <div class="progress-bar" 
+                                     role="progressbar" 
+                                     style="width: {{ chapitre.get_progress:user.student_user }}%;"
+                                     aria-valuenow="{{ chapitre.get_progress:user.student_user }}" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100"></div>
+                            </div>
+                            <small class="text-muted">{{ chapitre.get_progress:user.student_user }}% complété</small>
+                        </div>
+                        {% endif %}
+                        <div class="d-flex justify-content-between mt-auto">
+                            <a href="{% url 'detail_chapitre' chapitre.slug %}" 
+                               class="btn btn-outline-secondary">Voir détails</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    Aucun chapitre disponible.
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}

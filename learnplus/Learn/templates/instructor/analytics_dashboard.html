@@ -1,0 +1,238 @@
+{% extends 'pages/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="page-content">
+    <div class="container-fluid page__container">
+        <!-- Vue d'ensemble -->
+        <div class="row">
+            <div class="col-lg-3 col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="avatar avatar-lg">
+                                <span class="bg-soft-primary avatar-title rounded-circle">
+                                    <i class="material-icons">people</i>
+                                </span>
+                            </div>
+                            <div class="ml-3">
+                                <h4 class="mb-0">{{ analytics.total_students }}</h4>
+                                <p class="text-muted mb-0">Étudiants Total</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="avatar avatar-lg">
+                                <span class="bg-soft-success avatar-title rounded-circle">
+                                    <i class="material-icons">school</i>
+                                </span>
+                            </div>
+                            <div class="ml-3">
+                                <h4 class="mb-0">{{ analytics.active_students }}</h4>
+                                <p class="text-muted mb-0">Étudiants Actifs</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="avatar avatar-lg">
+                                <span class="bg-soft-warning avatar-title rounded-circle">
+                                    <i class="material-icons">assignment</i>
+                                </span>
+                            </div>
+                            <div class="ml-3">
+                                <h4 class="mb-0">{{ analytics.total_courses }}</h4>
+                                <p class="text-muted mb-0">Cours Total</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="avatar avatar-lg">
+                                <span class="bg-soft-info avatar-title rounded-circle">
+                                    <i class="material-icons">trending_up</i>
+                                </span>
+                            </div>
+                            <div class="ml-3">
+                                <h4 class="mb-0">{{ analytics.completion_rate|floatformat:1 }}%</h4>
+                                <p class="text-muted mb-0">Taux de Complétion</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Statistiques des évaluations -->
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title">Statistiques des Évaluations</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart">
+                            <canvas id="evaluationChart" height="250"></canvas>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-6">
+                                <p class="text-muted mb-1">Score Moyen Quiz</p>
+                                <h4>{{ analytics.average_quiz_score|floatformat:1 }}/20</h4>
+                            </div>
+                            <div class="col-6">
+                                <p class="text-muted mb-1">Devoirs Notés</p>
+                                <h4>{{ analytics.graded_assignments }}/{{ analytics.total_assignments }}</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistiques d'engagement -->
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title">Engagement des Étudiants</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart">
+                            <canvas id="engagementChart" height="250"></canvas>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-4">
+                                <p class="text-muted mb-1">Messages</p>
+                                <h4>{{ analytics.student_messages }}</h4>
+                            </div>
+                            <div class="col-4">
+                                <p class="text-muted mb-1">Posts Forum</p>
+                                <h4>{{ analytics.forum_posts }}</h4>
+                            </div>
+                            <div class="col-4">
+                                <p class="text-muted mb-1">Téléchargements</p>
+                                <h4>{{ analytics.resource_downloads }}</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Historique -->
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title">Historique des 30 derniers jours</h4>
+            </div>
+            <div class="card-body">
+                <div class="chart">
+                    <canvas id="historyChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Graphique des évaluations
+    var evaluationCtx = document.getElementById('evaluationChart').getContext('2d');
+    new Chart(evaluationCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Quiz', 'Devoirs'],
+            datasets: [{
+                label: 'Taux de Réussite',
+                data: [
+                    {{ analytics.average_quiz_score }},
+                    {{ analytics.graded_assignments|default:0 }}
+                ],
+                backgroundColor: [
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(54, 162, 235, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(54, 162, 235, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 20
+                }
+            }
+        }
+    });
+
+    // Graphique d'engagement
+    var engagementCtx = document.getElementById('engagementChart').getContext('2d');
+    new Chart(engagementCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Messages', 'Posts Forum', 'Téléchargements'],
+            datasets: [{
+                data: [
+                    {{ analytics.student_messages }},
+                    {{ analytics.forum_posts }},
+                    {{ analytics.resource_downloads }}
+                ],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)'
+                ],
+                borderWidth: 1
+            }]
+        }
+    });
+
+    // Graphique historique
+    var historyCtx = document.getElementById('historyChart').getContext('2d');
+    new Chart(historyCtx, {
+        type: 'line',
+        data: {
+            labels: [{% for item in history %}'{{ item.date|date:"d/m" }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+            datasets: [{
+                label: 'Étudiants Actifs',
+                data: [{% for item in history %}{{ item.active_students }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+                borderColor: 'rgba(75, 192, 192, 1)',
+                fill: false
+            }, {
+                label: 'Taux de Complétion',
+                data: [{% for item in history %}{{ item.completion_rate }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+                borderColor: 'rgba(255, 99, 132, 1)',
+                fill: false
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

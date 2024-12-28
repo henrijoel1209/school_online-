@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0">{{ title }}</h3>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        {% if form.errors %}
+                        <div class="alert alert-danger">
+                            <strong>Erreurs dans le formulaire :</strong>
+                            {{ form.errors }}
+                        </div>
+                        {% endif %}
+
+                        {% for field in form %}
+                        <div class="form-group mb-3">
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.help_text %}
+                            <small class="form-text text-muted">{{ field.help_text }}</small>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+
+                        {% if matiere and matiere.image %}
+                        <div class="form-group mb-3">
+                            <label>Image actuelle :</label>
+                            <div>
+                                <img src="{{ matiere.image.url }}" alt="{{ matiere.nom }}" style="max-width: 200px;">
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">
+                                {% if matiere %}
+                                <i class="fas fa-save"></i> Enregistrer les modifications
+                                {% else %}
+                                <i class="fas fa-plus"></i> Créer la matière
+                                {% endif %}
+                            </button>
+                            <a href="{% url 'school:liste_matieres' %}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Annuler
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1>Chat</h1>
+    <p>Entrez le nom d'une salle pour commencer à chatter :</p>
+    <form>
+        <div class="form-group">
+            <input type="text" class="form-control" id="room-name-input" placeholder="Nom de la salle">
+        </div>
+        <button type="button" class="btn btn-primary" id="room-name-submit">Entrer dans la salle</button>
+    </form>
+</div>
+
+<script>
+    document.querySelector('#room-name-input').focus();
+    document.querySelector('#room-name-input').onkeyup = function(e) {
+        if (e.keyCode === 13) {  // enter, return
+            document.querySelector('#room-name-submit').click();
+        }
+    };
+
+    document.querySelector('#room-name-submit').onclick = function(e) {
+        var roomName = document.querySelector('#room-name-input').value;
+        window.location.pathname = '/chat/room/' + roomName + '/';
+    };
+</script>
+{% endblock %}

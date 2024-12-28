@@ -1,0 +1,110 @@
+{% extends 'pages/base.html' %}
+{% load static %}
+
+{% block title %}{{ quiz.titre }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h2 class="mb-0">{{ quiz.titre }}</h2>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-8">
+                    <h4>Description</h4>
+                    <p>{{ quiz.description }}</p>
+                    
+                    <h4>Instructions</h4>
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            <i class="fas fa-clock"></i> Durée: {{ quiz.duree }} minutes
+                        </li>
+                        <li class="list-group-item">
+                            <i class="fas fa-redo"></i> Tentatives maximales: {{ quiz.tentatives_max }}
+                        </li>
+                        <li class="list-group-item">
+                            <i class="fas fa-star"></i> Note minimale requise: {{ quiz.note_minimale }}/20
+                        </li>
+                        <li class="list-group-item">
+                            <i class="fas fa-calendar"></i> Disponible jusqu'au: {{ quiz.date_fin|date:"d/m/Y H:i" }}
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0">Vos tentatives</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if previous_attempts %}
+                            <ul class="list-group">
+                                {% for attempt in previous_attempts %}
+                                <li class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span>Tentative #{{ forloop.revcounter }}</span>
+                                        {% if attempt.score %}
+                                        <span class="badge {% if attempt.score >= quiz.note_minimale %}badge-success{% else %}badge-danger{% endif %}">
+                                            {{ attempt.score }}/20
+                                        </span>
+                                        {% else %}
+                                        <span class="badge badge-warning">En cours</span>
+                                        {% endif %}
+                                    </div>
+                                    <small class="text-muted">{{ attempt.started_at|date:"d/m/Y H:i" }}</small>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            {% else %}
+                            <p class="text-center">Aucune tentative</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-4 text-center">
+                {% if can_attempt %}
+                <form action="{% url 'quiz:start_quiz' quiz.id %}" method="post" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-play"></i> Commencer le quiz
+                    </button>
+                </form>
+                {% else %}
+                <button class="btn btn-secondary btn-lg" disabled>
+                    {% if previous_attempts|length >= quiz.tentatives_max %}
+                    <i class="fas fa-ban"></i> Nombre maximum de tentatives atteint
+                    {% else %}
+                    <i class="fas fa-clock"></i> Quiz non disponible
+                    {% endif %}
+                </button>
+                {% endif %}
+                
+                <a href="{% url 'quiz:liste_quiz' quiz.cours.id %}" class="btn btn-outline-primary btn-lg ml-2">
+                    <i class="fas fa-arrow-left"></i> Retour à la liste
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Animation pour les badges
+    document.addEventListener('DOMContentLoaded', function() {
+        const badges = document.querySelectorAll('.badge');
+        badges.forEach(badge => {
+            badge.style.transition = 'transform 0.3s ease';
+            badge.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.1)';
+            });
+            badge.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
+            });
+        });
+    });
+</script>
+{% endblock %}

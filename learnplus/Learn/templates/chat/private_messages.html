@@ -1,0 +1,36 @@
+{% extends 'chat/chat_base.html' %}
+
+{% block chat_content %}
+<div class="card">
+    <div class="card-header">
+        <h4 class="card-title">Messages privés</h4>
+    </div>
+    <div class="card-body">
+        {% if contacts %}
+        <div class="list-group list-group-flush">
+            {% for contact in contacts %}
+            <a href="{% url 'chat:private_conversation' contact.id %}" class="list-group-item list-group-item-action">
+                <div class="d-flex align-items-center">
+                    <div class="flex">
+                        <h5 class="mb-1">{{ contact.username }}</h5>
+                        {% if contact.instructor %}
+                        <small class="text-muted">Instructeur</small>
+                        {% elif contact.student %}
+                        <small class="text-muted">Étudiant</small>
+                        {% endif %}
+                    </div>
+                    {% if contact.received_messages.filter(is_read=False, receiver=user).exists %}
+                    <span class="badge badge-pill badge-primary">Nouveau</span>
+                    {% endif %}
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center">
+            <p>Aucune conversation privée.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

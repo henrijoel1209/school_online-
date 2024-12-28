@@ -1,0 +1,81 @@
+{% extends 'pages/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="page-content">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h1 class="mb-4">Devoirs pour {{ cours.titre }}</h1>
+
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <div class="row">
+                    {% for item in assignment_data %}
+                        <div class="col-md-6 mb-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ item.assignment.titre }}</h5>
+                                    <p class="card-text">{{ item.assignment.description }}</p>
+                                    
+                                    <div class="assignment-info">
+                                        <p>
+                                            <strong>Date limite:</strong> 
+                                            {{ item.assignment.date_limite|date:"d/m/Y H:i" }}
+                                            {% if item.is_late %}
+                                                <span class="badge badge-danger">En retard</span>
+                                            {% endif %}
+                                        </p>
+                                        <p><strong>Points:</strong> {{ item.assignment.points_max }}</p>
+                                    </div>
+
+                                    {% if item.submission %}
+                                        <div class="submission-info">
+                                            <p>
+                                                <strong>Soumis le:</strong> 
+                                                {{ item.submission.submitted_at|date:"d/m/Y H:i" }}
+                                            </p>
+                                            {% if item.submission.note %}
+                                                <p>
+                                                    <strong>Note:</strong> 
+                                                    {{ item.submission.note }}/{{ item.assignment.points_max }}
+                                                </p>
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+
+                                    <div class="mt-3">
+                                        {% if item.submission %}
+                                            <a href="{% url 'quiz:detail_assignment' item.assignment.id %}" 
+                                               class="btn btn-info">
+                                                Voir les détails
+                                            </a>
+                                        {% else %}
+                                            <a href="{% url 'quiz:detail_assignment' item.assignment.id %}" 
+                                               class="btn btn-primary">
+                                                Soumettre le devoir
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="col-12">
+                            <div class="alert alert-info">
+                                Aucun devoir n'est disponible pour ce cours.
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

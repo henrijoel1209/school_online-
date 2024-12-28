@@ -1,0 +1,57 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block title %}Liste des Classes{% endblock %}
+
+{% block content %}
+<div class="container page__container">
+    <div class="page-section">
+        
+        <div class="page-separator">
+            <div class="page-separator__text">Classes</div>
+        </div>
+
+        <div class="row card-group-row">
+            {% for classe in classes %}
+            <div class="col-md-6 col-lg-4 card-group-row__col">
+                <div class="card card-group-row__card">
+                    <div class="card-body d-flex flex-column">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="flex">
+                                <div class="card-title mb-0">{{ classe }}</div>
+                                <div class="card-subtitle text-muted">{{ classe.filiere }}</div>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <p class="mb-0">
+                                <span class="mr-1">{{ classe.get_students.count }}</span> 
+                                <small class="text-muted">étudiants</small>
+                            </p>
+                            <p class="mb-0">
+                                <span class="mr-1">{{ classe.get_chapitres.count }}</span>
+                                <small class="text-muted">chapitres</small>
+                            </p>
+                            <p class="mb-0">
+                                <span class="mr-1">{{ classe.get_average_score|floatformat:1 }}</span>
+                                <small class="text-muted">moyenne générale</small>
+                            </p>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'detail_classe' classe.slug %}" 
+                               class="btn btn-outline-secondary">Voir détails</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    Aucune classe disponible.
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}

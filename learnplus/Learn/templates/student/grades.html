@@ -1,0 +1,86 @@
+{% extends 'pages/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container page__container">
+    <div class="page-section">
+        <div class="page-separator">
+            <div class="page-separator__text">Mes Notes</div>
+        </div>
+
+        <!-- Vue d'ensemble -->
+        <div class="card mb-32pt">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-4">
+                        <div class="text-center">
+                            <h4 class="mb-0">{{ average|floatformat:2 }}/20</h4>
+                            <p class="text-muted">Moyenne Générale</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="text-center">
+                            <h4 class="mb-0">{{ completed_courses }}/{{ total_courses }}</h4>
+                            <p class="text-muted">Cours Complétés</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="text-center">
+                            <h4 class="mb-0">{{ completion_rate|floatformat:0 }}%</h4>
+                            <p class="text-muted">Taux de Complétion</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Liste des cours -->
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title">Notes par Cours</h4>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Cours</th>
+                                <th>Note Finale</th>
+                                <th>Mention</th>
+                                <th>Quiz Complétés</th>
+                                <th>Statut</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for grade in student_grades %}
+                            <tr>
+                                <td>{{ grade.course.titre }}</td>
+                                <td>{{ grade.final_grade|floatformat:2 }}/20</td>
+                                <td>{{ grade.grade_status }}</td>
+                                <td>{{ grade.quiz_grades.filter.completed.count }}/{{ grade.quiz_grades.count }}</td>
+                                <td>
+                                    {% if grade.completed %}
+                                    <span class="badge badge-success">Terminé</span>
+                                    {% else %}
+                                    <span class="badge badge-warning">En cours</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'student:course-grade-detail' grade.course.slug %}" 
+                                       class="btn btn-sm btn-primary">Détails</a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center">Aucune note disponible</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

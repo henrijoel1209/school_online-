@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'chat.apps.ChatConfig',
     'quiz.apps.QuizConfig',
     'forum.apps.ForumConfig',
+    'admin_custom.apps.AdminCustomConfig',
 ]
 
 MIDDLEWARE = [
@@ -56,6 +57,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'core.middleware.QueryCacheMiddleware',  # Notre nouveau middleware
 ]
 
 ROOT_URLCONF = 'Learn.urls'
@@ -136,8 +138,36 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR,'static')
   ]
 STATIC_ROOT= os.path.join(BASE_DIR, '../static_cdn')
-MEDIA_ROOT= os.path.join(BASE_DIR, '../media_cdn')
+
+# Configuration du cache
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+    }
+}
+
+# Paramètres de sécurité
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+
+# Timeout de session (30 minutes)
+SESSION_COOKIE_AGE = 1800
+SESSION_SAVE_EVERY_REQUEST = True
+
+# Configuration des messages
+MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
+
+# Configuration du champ de clé primaire par défaut
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# URL de connexion
+LOGIN_URL = '/login/'

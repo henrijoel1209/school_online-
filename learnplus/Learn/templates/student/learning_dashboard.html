@@ -1,0 +1,139 @@
+{% extends 'pages/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container page__container">
+    <div class="page-section">
+        <div class="page-separator">
+            <div class="page-separator__text">Tableau de Bord d'Apprentissage</div>
+        </div>
+
+        <!-- Statistiques globales -->
+        <div class="row card-group-row mb-lg-8pt">
+            <div class="col-lg-4 col-md-6 card-group-row__col">
+                <div class="card card-group-row__card">
+                    <div class="card-body d-flex flex-column align-items-center">
+                        <i class="material-icons icon-32pt text-primary">school</i>
+                        <div class="d-flex align-items-center">
+                            <div class="h2 mb-0 mr-3">{{ completed_courses }}/{{ total_courses }}</div>
+                            <div class="flex">
+                                <p class="mb-0"><strong>Cours complétés</strong></p>
+                                <p class="text-muted mb-0">sur le total des cours</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 card-group-row__col">
+                <div class="card card-group-row__card">
+                    <div class="card-body d-flex flex-column align-items-center">
+                        <i class="material-icons icon-32pt text-success">timer</i>
+                        <div class="d-flex align-items-center">
+                            <div class="h2 mb-0 mr-3">{{ total_time|time:"H:i" }}</div>
+                            <div class="flex">
+                                <p class="mb-0"><strong>Temps total</strong></p>
+                                <p class="text-muted mb-0">passé à apprendre</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 card-group-row__col">
+                <div class="card card-group-row__card">
+                    <div class="card-body d-flex flex-column align-items-center">
+                        <i class="material-icons icon-32pt text-warning">assignment_turned_in</i>
+                        <div class="d-flex align-items-center">
+                            <div class="h2 mb-0 mr-3">{{ total_activities }}</div>
+                            <div class="flex">
+                                <p class="mb-0"><strong>Activités</strong></p>
+                                <p class="text-muted mb-0">complétées</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progression des cours -->
+        <div class="card mb-32pt">
+            <div class="card-header">
+                <h4 class="card-title">Progression des Cours</h4>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    {% for progress in course_progress %}
+                    <div class="list-group-item p-3">
+                        <div class="row align-items-center">
+                            <div class="col-md-3">
+                                <h5 class="mb-1">
+                                    <a href="{% url 'student:course-progress-detail' progress.course.slug %}" 
+                                       class="text-body">{{ progress.course.titre }}</a>
+                                </h5>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="progress" style="height: 20px;">
+                                    <div class="progress-bar" 
+                                         role="progressbar" 
+                                         style="width: {{ progress.progress_percentage }}%"
+                                         aria-valuenow="{{ progress.progress_percentage }}" 
+                                         aria-valuemin="0" 
+                                         aria-valuemax="100">
+                                        {{ progress.progress_percentage|floatformat:1 }}%
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 text-md-right">
+                                {% if progress.completion_date %}
+                                <span class="badge badge-success">Terminé</span>
+                                {% else %}
+                                <span class="badge badge-warning">En cours</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="list-group-item">
+                        <p class="text-center mb-0">Aucun cours en cours</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Activités récentes -->
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title">Activités Récentes</h4>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    {% for activity in recent_activities %}
+                    <div class="list-group-item">
+                        <div class="d-flex align-items-center">
+                            <div class="flex">
+                                <div class="d-flex align-items-center">
+                                    <div>
+                                        <strong>{{ activity.get_activity_type_display }}</strong>
+                                        <small class="text-muted ml-2">
+                                            {{ activity.course.titre }}
+                                            {% if activity.chapter %}
+                                            - {{ activity.chapter.titre }}
+                                            {% endif %}
+                                        </small>
+                                    </div>
+                                </div>
+                                <small class="text-muted">{{ activity.timestamp|date:"d/m/Y H:i" }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="list-group-item">
+                        <p class="text-center mb-0">Aucune activité récente</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

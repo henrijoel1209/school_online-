@@ -10,7 +10,7 @@
                 </button>
 
                 <!-- Brand -->
-                <a href="{% url 'dashboard' %}" class="navbar-brand">
+                <a href="{% url 'instructor:dashboard' %}" class="navbar-brand">
                     <img src="/static/assets/images/logo/white.svg" class="mr-2" alt="LearnPlus" />
                     <span class="d-none d-xs-md-block">LearnPlus</span>
                 </a>
@@ -21,7 +21,7 @@
                 <!-- Menu -->
                 <ul class="nav navbar-nav flex-nowrap d-none d-lg-flex">
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'instructor-forum' %} " title="forum">
+                        <a class="nav-link" href="{% url 'instructor:forum' %}" title="forum">
                             <i class="material-icons">forum</i>
                         </a>
                     </li>
@@ -31,7 +31,7 @@
                 <ul class="nav navbar-nav flex-nowrap">
 
                     <li class="nav-item d-none d-md-flex">
-                        <a href="{% url 'instructor-messages'  user.instructor.classe %}" title="Chat" class="nav-link">
+                        <a href="{% url 'instructor:messages' user.instructor.classe %}" title="Chat" class="nav-link">
                             <i class="material-icons">chat</i>
                         </a>
                     </li>
@@ -41,14 +41,14 @@
                                 src="{{user.instructor.photo.url}}" alt="Avatar" class="rounded-circle"
                                 width="40"></a>
                         <div class="dropdown-menu dropdown-menu-right">
-                            <a class="dropdown-item" href="{% url 'instructor-account-edit' %}">
+                            <a class="dropdown-item" href="{% url 'instructor:account-edit' %}">
                                 <i class="material-icons">edit</i> Edit Account
                             </a>
-                            <a class="dropdown-item" href="{% url 'instructor-profile' %}">
+                            <a class="dropdown-item" href="{% url 'instructor:profile' %}">
                                 <i class="material-icons">person</i> Public Profile
                             </a>
-                            <a class="dropdown-item" href="{% url 'deconnexion' %}">
-                                <i class="material-icons">lock</i> Logout
+                            <a class="dropdown-item" href="{% url 'school:logout' %}">
+                                <i class="material-icons">exit_to_app</i> Logout
                             </a>
                         </div>
                     </li>

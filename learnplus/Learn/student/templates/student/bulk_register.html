@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Inscription en masse des étudiants{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0">Inscription en masse des étudiants</h3>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <h5>Instructions :</h5>
+                        <ol>
+                            <li>Préparez un fichier Excel avec les colonnes suivantes :
+                                <ul>
+                                    <li>Nom (obligatoire)</li>
+                                    <li>Prénom (obligatoire)</li>
+                                    <li>Email (obligatoire)</li>
+                                    <li>Classe (optionnel)</li>
+                                </ul>
+                            </li>
+                            <li>Si la colonne Classe n'est pas spécifiée ou si une classe n'est pas trouvée, 
+                                la classe par défaut sélectionnée sera utilisée.</li>
+                            <li>Les mots de passe temporaires seront générés automatiquement.</li>
+                        </ol>
+                    </div>
+
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        {% if form.errors %}
+                        <div class="alert alert-danger">
+                            <strong>Erreurs dans le formulaire :</strong>
+                            {{ form.errors }}
+                        </div>
+                        {% endif %}
+
+                        {% for field in form %}
+                        <div class="form-group mb-3">
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field|add_class:"form-control" }}
+                            {% if field.help_text %}
+                            <small class="form-text text-muted">{{ field.help_text }}</small>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">Importer les étudiants</button>
+                            <a href="{% url 'student:student_list' %}" class="btn btn-secondary">Annuler</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Template de fichier Excel -->
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">Template Excel</h4>
+                </div>
+                <div class="card-body">
+                    <p>Téléchargez le template Excel pour l'importation des étudiants :</p>
+                    <a href="{% static 'student/template_etudiants.xlsx' %}" class="btn btn-success">
+                        <i class="fas fa-download"></i> Télécharger le template
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

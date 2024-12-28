@@ -1,0 +1,126 @@
+{% extends 'pages/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="page-content">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title mb-4">{{ assignment.titre }}</h2>
+
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }}">
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        <div class="assignment-details mb-4">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Cours:</strong> {{ assignment.cours.titre }}</p>
+                                    <p><strong>Points:</strong> {{ assignment.points_max }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Date de début:</strong> {{ assignment.date_debut|date:"d/m/Y H:i" }}</p>
+                                    <p><strong>Date limite:</strong> {{ assignment.date_limite|date:"d/m/Y H:i" }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="assignment-description mb-4">
+                            <h5>Description</h5>
+                            <p>{{ assignment.description }}</p>
+                        </div>
+
+                        {% if assignment.fichier_instruction %}
+                            <div class="assignment-file mb-4">
+                                <h5>Fichier d'instructions</h5>
+                                <a href="{{ assignment.fichier_instruction.url }}" class="btn btn-outline-primary" target="_blank">
+                                    <i class="fas fa-download"></i> Télécharger les instructions
+                                </a>
+                            </div>
+                        {% endif %}
+
+                        {% if submission %}
+                            <div class="submission-details">
+                                <h5>Votre soumission</h5>
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <p><strong>Date de soumission:</strong> {{ submission.submitted_at|date:"d/m/Y H:i" }}</p>
+                                        <p>
+                                            <strong>Fichier:</strong>
+                                            <a href="{{ submission.fichier_reponse.url }}" target="_blank">
+                                                Voir votre fichier
+                                            </a>
+                                        </p>
+                                        {% if submission.commentaire %}
+                                            <p><strong>Votre commentaire:</strong></p>
+                                            <p>{{ submission.commentaire }}</p>
+                                        {% endif %}
+                                        {% if submission.note %}
+                                            <div class="alert {% if submission.note >= assignment.points_max|div:2 %}alert-success{% else %}alert-danger{% endif %}">
+                                                <h5 class="mb-0">Note: {{ submission.note }}/{{ assignment.points_max }}</h5>
+                                                {% if submission.is_late %}
+                                                    <small class="text-danger">
+                                                        Pénalité de retard: -{{ submission.calculate_penalty }} points
+                                                    </small>
+                                                {% endif %}
+                                            </div>
+                                            {% if submission.feedback %}
+                                                <div class="mt-3">
+                                                    <h6>Feedback de l'enseignant:</h6>
+                                                    <p>{{ submission.feedback }}</p>
+                                                </div>
+                                            {% endif %}
+                                        {% else %}
+                                            <div class="alert alert-info">
+                                                Votre devoir est en cours d'évaluation.
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% else %}
+                            {% if assignment.is_available %}
+                                <div class="submit-form">
+                                    <h5>Soumettre votre devoir</h5>
+                                    <form method="post" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <div class="form-group">
+                                            <label for="fichier_reponse">Fichier de réponse</label>
+                                            <input type="file" class="form-control-file" id="fichier_reponse" 
+                                                   name="fichier_reponse" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="commentaire">Commentaire (optionnel)</label>
+                                            <textarea class="form-control" id="commentaire" name="commentaire" 
+                                                      rows="3"></textarea>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">
+                                            Soumettre le devoir
+                                        </button>
+                                    </form>
+                                </div>
+                            {% else %}
+                                <div class="alert alert-warning">
+                                    Ce devoir n'est plus disponible pour soumission.
+                                </div>
+                            {% endif %}
+                        {% endif %}
+
+                        <div class="text-center mt-4">
+                            <a href="{% url 'quiz:liste_assignments' assignment.cours.id %}" class="btn btn-secondary">
+                                Retour aux devoirs
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

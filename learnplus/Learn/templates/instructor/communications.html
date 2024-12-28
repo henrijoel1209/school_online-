@@ -1,0 +1,169 @@
+{% extends 'pages/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="page-content">
+    <div class="container-fluid page__container">
+        <div class="row">
+            <!-- Liste des communications -->
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title">Communications</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Titre</th>
+                                        <th>Type</th>
+                                        <th>Statut</th>
+                                        <th>Destinataires</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for comm in communications %}
+                                    <tr>
+                                        <td>{{ comm.date_sent|date:"d/m/Y H:i" }}</td>
+                                        <td>{{ comm.title }}</td>
+                                        <td>
+                                            <span class="badge badge-soft-primary">
+                                                {{ comm.get_type_display }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {% if comm.status == 'draft' %}
+                                            <span class="badge badge-soft-warning">Brouillon</span>
+                                            {% elif comm.status == 'sent' %}
+                                            <span class="badge badge-soft-success">Envoyé</span>
+                                            {% else %}
+                                            <span class="badge badge-soft-info">Programmé</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ comm.recipients.count }} étudiant(s)</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-light" data-toggle="modal" data-target="#viewModal{{ comm.id }}">
+                                                <i class="material-icons">visibility</i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulaire de nouvelle communication -->
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title">Nouvelle Communication</h4>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label for="title">Titre</label>
+                                <input type="text" class="form-control" id="title" name="title" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="content">Contenu</label>
+                                <textarea class="form-control" id="content" name="content" rows="4" required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="type">Type</label>
+                                <select class="form-control" id="type" name="type" required>
+                                    <option value="announcement">Annonce</option>
+                                    <option value="reminder">Rappel</option>
+                                    <option value="feedback">Feedback</option>
+                                    <option value="notification">Notification</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="recipients">Destinataires</label>
+                                <select class="form-control select2" id="recipients" name="recipients" multiple required>
+                                    {% for student in students %}
+                                    <option value="{{ student.id }}">{{ student.user.username }} - {{ student.classe }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="attachment">Pièce jointe</label>
+                                <input type="file" class="form-control-file" id="attachment" name="attachment">
+                            </div>
+                            <div class="form-group">
+                                <label for="scheduled_date">Date d'envoi (optionnel)</label>
+                                <input type="datetime-local" class="form-control" id="scheduled_date" name="scheduled_date">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Envoyer</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modals pour voir les communications -->
+{% for comm in communications %}
+<div class="modal fade" id="viewModal{{ comm.id }}" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ comm.title }}</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Type:</strong> {{ comm.get_type_display }}</p>
+                <p><strong>Date:</strong> {{ comm.date_sent|date:"d/m/Y H:i" }}</p>
+                <p><strong>Statut:</strong> {{ comm.get_status_display }}</p>
+                {% if comm.scheduled_date %}
+                <p><strong>Date programmée:</strong> {{ comm.scheduled_date|date:"d/m/Y H:i" }}</p>
+                {% endif %}
+                <hr>
+                <p>{{ comm.content|linebreaks }}</p>
+                {% if comm.attachment %}
+                <p>
+                    <strong>Pièce jointe:</strong>
+                    <a href="{{ comm.attachment.url }}" target="_blank">
+                        <i class="material-icons">attach_file</i>
+                        {{ comm.attachment.name|slice:"14:" }}
+                    </a>
+                </p>
+                {% endif %}
+                <hr>
+                <h6>Destinataires:</h6>
+                <ul>
+                    {% for recipient in comm.recipients.all %}
+                    <li>{{ recipient.user.username }} - {{ recipient.classe }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('.select2').select2({
+            placeholder: 'Sélectionnez les destinataires',
+            allowClear: true
+        });
+    });
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+{% endblock %}

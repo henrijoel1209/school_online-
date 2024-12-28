@@ -1,0 +1,160 @@
+{% extends 'pages/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="page-content">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title">Modifier le cours</h4>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            
+                            <!-- Chapitre -->
+                            <div class="form-group">
+                                <label for="chapitre">Chapitre</label>
+                                <select name="chapitre" id="chapitre" class="form-control" required>
+                                    <option value="">Sélectionnez un chapitre</option>
+                                    {% for chapitre in chapitres %}
+                                    <option value="{{ chapitre.id }}" {% if cours.chapitre.id == chapitre.id %}selected{% endif %}>
+                                        {{ chapitre.matiere.nom }} - {{ chapitre.titre }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <!-- Titre -->
+                            <div class="form-group">
+                                <label for="titre">Titre du cours</label>
+                                <input type="text" class="form-control" id="titre" name="titre" 
+                                       value="{{ cours.titre }}" required>
+                            </div>
+
+                            <!-- Description -->
+                            <div class="form-group">
+                                <label for="description">Description</label>
+                                <textarea class="form-control" id="description" name="description" 
+                                          rows="5" required>{{ cours.description }}</textarea>
+                            </div>
+
+                            <!-- Image actuelle -->
+                            {% if cours.image %}
+                            <div class="form-group">
+                                <label>Image actuelle</label>
+                                <div>
+                                    <img src="{{ cours.image.url }}" alt="{{ cours.titre }}" 
+                                         class="img-thumbnail" style="max-height: 200px;">
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <!-- Nouvelle image -->
+                            <div class="form-group">
+                                <label for="image">Nouvelle image</label>
+                                <input type="file" class="form-control-file" id="image" name="image">
+                                <small class="form-text text-muted">
+                                    Laissez vide pour conserver l'image actuelle
+                                </small>
+                            </div>
+
+                            <!-- Fichier actuel -->
+                            {% if cours.fichier %}
+                            <div class="form-group">
+                                <label>Fichier actuel</label>
+                                <div>
+                                    <a href="{{ cours.fichier.url }}" target="_blank" class="btn btn-sm btn-info">
+                                        <i class="fas fa-file-pdf"></i> Voir le fichier
+                                    </a>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <!-- Nouveau fichier -->
+                            <div class="form-group">
+                                <label for="fichier">Nouveau fichier (PDF)</label>
+                                <input type="file" class="form-control-file" id="fichier" name="fichier">
+                                <small class="form-text text-muted">
+                                    Laissez vide pour conserver le fichier actuel
+                                </small>
+                            </div>
+
+                            <!-- Vidéo actuelle -->
+                            {% if cours.video %}
+                            <div class="form-group">
+                                <label>Vidéo actuelle</label>
+                                <div>
+                                    <video controls class="img-thumbnail" style="max-height: 200px;">
+                                        <source src="{{ cours.video.url }}" type="video/mp4">
+                                        Votre navigateur ne supporte pas la lecture de vidéos.
+                                    </video>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <!-- Nouvelle vidéo -->
+                            <div class="form-group">
+                                <label for="video">Nouvelle vidéo</label>
+                                <input type="file" class="form-control-file" id="video" name="video">
+                                <small class="form-text text-muted">
+                                    Laissez vide pour conserver la vidéo actuelle
+                                </small>
+                            </div>
+
+                            <!-- Durée -->
+                            <div class="form-group">
+                                <label for="duree">Durée estimée (en heures)</label>
+                                <input type="number" class="form-control" id="duree" name="duree" 
+                                       min="0" step="0.5" value="{{ cours.duree|default:0 }}">
+                            </div>
+
+                            <!-- Prérequis -->
+                            <div class="form-group">
+                                <label for="prerequis">Prérequis</label>
+                                <textarea class="form-control" id="prerequis" name="prerequis" 
+                                          rows="3">{{ cours.prerequis }}</textarea>
+                            </div>
+
+                            <!-- Objectifs -->
+                            <div class="form-group">
+                                <label for="objectifs">Objectifs d'apprentissage</label>
+                                <textarea class="form-control" id="objectifs" name="objectifs" 
+                                          rows="3">{{ cours.objectifs }}</textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
+                                <a href="{% url 'instructor:courses' %}" class="btn btn-secondary">Annuler</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+// Initialisation de l'éditeur de texte riche pour la description
+$(document).ready(function() {
+    $('#description').summernote({
+        height: 200,
+        toolbar: [
+            ['style', ['style']],
+            ['font', ['bold', 'italic', 'underline', 'clear']],
+            ['fontname', ['fontname']],
+            ['color', ['color']],
+            ['para', ['ul', 'ol', 'paragraph']],
+            ['table', ['table']],
+            ['insert', ['link', 'picture']],
+            ['view', ['fullscreen', 'codeview']]
+        ]
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}

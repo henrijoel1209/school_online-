@@ -1,0 +1,173 @@
+{% extends 'pages/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="page-content">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1>Chapitres</h1>
+                    <a href="{% url 'instructor:chapter_add' %}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Nouveau chapitre
+                    </a>
+                </div>
+
+                <!-- Filtres -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <form method="get" class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="matiere">Matière</label>
+                                    <select name="matiere" id="matiere" class="form-control">
+                                        <option value="">Toutes les matières</option>
+                                        {% for matiere in matieres %}
+                                        <option value="{{ matiere.id }}" {% if selected_matiere == matiere.id %}selected{% endif %}>
+                                            {{ matiere.nom }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="status">Statut</label>
+                                    <select name="status" id="status" class="form-control">
+                                        <option value="">Tous les statuts</option>
+                                        <option value="active" {% if status == 'active' %}selected{% endif %}>Actif</option>
+                                        <option value="inactive" {% if status == 'inactive' %}selected{% endif %}>Inactif</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>&nbsp;</label>
+                                    <button type="submit" class="btn btn-primary btn-block">Filtrer</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Liste des chapitres -->
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Titre</th>
+                                        <th>Matière</th>
+                                        <th>Cours</th>
+                                        <th>Date début</th>
+                                        <th>Date fin</th>
+                                        <th>Statut</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for chapitre in chapitres %}
+                                    <tr>
+                                        <td>{{ chapitre.titre }}</td>
+                                        <td>{{ chapitre.matiere.nom }}</td>
+                                        <td>{{ chapitre.cours_set.count }}</td>
+                                        <td>{{ chapitre.date_debut|date:"d/m/Y" }}</td>
+                                        <td>{{ chapitre.date_fin|date:"d/m/Y" }}</td>
+                                        <td>
+                                            <span class="badge {% if chapitre.status %}badge-success{% else %}badge-danger{% endif %}">
+                                                {% if chapitre.status %}Actif{% else %}Inactif{% endif %}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <a href="{% url 'instructor:chapter_edit' chapitre.slug %}" 
+                                                   class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <button type="button" class="btn btn-sm btn-outline-danger"
+                                                        onclick="confirmDelete('{% url 'instructor:chapter_delete' chapitre.slug %}')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="7" class="text-center">
+                                            Aucun chapitre trouvé
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                {% if chapitres.has_other_pages %}
+                <nav aria-label="Page navigation" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if chapitres.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ chapitres.previous_page_number }}" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        {% endif %}
+
+                        {% for i in chapitres.paginator.page_range %}
+                        <li class="page-item {% if chapitres.number == i %}active{% endif %}">
+                            <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                        </li>
+                        {% endfor %}
+
+                        {% if chapitres.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ chapitres.next_page_number }}" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmation de suppression -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmer la suppression</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Êtes-vous sûr de vouloir supprimer ce chapitre ?</p>
+                <p class="text-danger">
+                    <strong>Attention :</strong> Cette action supprimera également tous les cours associés à ce chapitre.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                <a href="" class="btn btn-danger" id="deleteLink">Supprimer</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+function confirmDelete(url) {
+    document.getElementById('deleteLink').href = url;
+    $('#deleteModal').modal('show');
+}
+</script>
+{% endblock %}
+{% endblock %}

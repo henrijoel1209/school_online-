@@ -1,0 +1,133 @@
+{% extends 'pages/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="page-content">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h1 class="mb-4">Tableau de bord de l'instructeur</h1>
+                
+                <!-- Statistiques -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Cours</h5>
+                                <p class="card-text h2">{{ cours_count }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Étudiants</h5>
+                                <p class="card-text h2">{{ students_count }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Quiz</h5>
+                                <p class="card-text h2">{{ quiz_count }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Devoirs</h5>
+                                <p class="card-text h2">{{ devoir_count }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions rapides -->
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Actions rapides</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <a href="{% url 'instructor:course_add' %}" class="btn btn-primary btn-block">
+                                            <i class="fas fa-plus"></i> Nouveau cours
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <a href="{% url 'instructor:quiz_add' %}" class="btn btn-success btn-block">
+                                            <i class="fas fa-question"></i> Nouveau quiz
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <a href="{% url 'instructor:devoir_add' %}" class="btn btn-info btn-block">
+                                            <i class="fas fa-book"></i> Nouveau devoir
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <a href="{% url 'instructor:forum_ask' %}" class="btn btn-warning btn-block">
+                                            <i class="fas fa-comments"></i> Nouveau sujet
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dernières activités -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Derniers quiz</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="list-group">
+                                    {% for quiz in recent_quizzes %}
+                                    <a href="{% url 'instructor:quiz_edit' quiz.slug %}" class="list-group-item list-group-item-action">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">{{ quiz.titre }}</h6>
+                                            <small>{{ quiz.date|date:"d/m/Y" }}</small>
+                                        </div>
+                                        <small>{{ quiz.cours.titre }}</small>
+                                    </a>
+                                    {% empty %}
+                                    <p class="text-muted">Aucun quiz récent</p>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Derniers devoirs</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="list-group">
+                                    {% for devoir in recent_devoirs %}
+                                    <a href="{% url 'instructor:devoir_edit' devoir.slug %}" class="list-group-item list-group-item-action">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">{{ devoir.sujet }}</h6>
+                                            <small>{{ devoir.dateDebut|date:"d/m/Y" }}</small>
+                                        </div>
+                                        <small>{{ devoir.chapitre.titre }}</small>
+                                    </a>
+                                    {% empty %}
+                                    <p class="text-muted">Aucun devoir récent</p>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

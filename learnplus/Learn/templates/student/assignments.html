@@ -1,0 +1,129 @@
+{% extends 'pages/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container page__container">
+    <div class="page-section">
+        <div class="page-separator">
+            <div class="page-separator__text">Mes Devoirs</div>
+        </div>
+
+        <!-- Devoirs en attente -->
+        <div class="card mb-32pt">
+            <div class="card-header">
+                <h4 class="card-title">Devoirs à faire</h4>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    {% for item in pending_assignments %}
+                    <div class="list-group-item d-flex align-items-center">
+                        <div class="flex">
+                            <a href="{% url 'student:assignment-detail' item.assignment.id %}" class="text-body">
+                                <strong>{{ item.assignment.title }}</strong>
+                            </a>
+                            <div class="d-flex align-items-center">
+                                <small class="text-muted mr-2">
+                                    {{ item.assignment.course.titre }}
+                                </small>
+                                <small class="text-warning">
+                                    {{ item.time_remaining }}
+                                </small>
+                            </div>
+                        </div>
+                        <div class="ml-3">
+                            <a href="{% url 'student:assignment-detail' item.assignment.id %}" 
+                               class="btn btn-primary">Commencer</a>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="list-group-item">
+                        <p class="text-center mb-0">Aucun devoir en attente</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Devoirs complétés -->
+        <div class="card mb-32pt">
+            <div class="card-header">
+                <h4 class="card-title">Devoirs complétés</h4>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    {% for item in completed_assignments %}
+                    <div class="list-group-item d-flex align-items-center">
+                        <div class="flex">
+                            <a href="{% url 'student:assignment-detail' item.assignment.id %}" class="text-body">
+                                <strong>{{ item.assignment.title }}</strong>
+                            </a>
+                            <div class="d-flex align-items-center">
+                                <small class="text-muted mr-2">
+                                    {{ item.assignment.course.titre }}
+                                </small>
+                                {% if item.submission.score %}
+                                <small class="text-success">
+                                    Note: {{ item.submission.score }}/{{ item.assignment.max_points }}
+                                </small>
+                                {% else %}
+                                <small class="text-muted">En attente de notation</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="ml-3">
+                            <a href="{% url 'student:assignment-detail' item.assignment.id %}" 
+                               class="btn btn-outline-secondary">Voir détails</a>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="list-group-item">
+                        <p class="text-center mb-0">Aucun devoir complété</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Devoirs en retard -->
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title text-danger">Devoirs en retard</h4>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    {% for item in late_assignments %}
+                    <div class="list-group-item d-flex align-items-center">
+                        <div class="flex">
+                            <a href="{% url 'student:assignment-detail' item.assignment.id %}" class="text-body">
+                                <strong>{{ item.assignment.title }}</strong>
+                            </a>
+                            <div class="d-flex align-items-center">
+                                <small class="text-muted mr-2">
+                                    {{ item.assignment.course.titre }}
+                                </small>
+                                <small class="text-danger">
+                                    Date limite dépassée
+                                </small>
+                            </div>
+                        </div>
+                        <div class="ml-3">
+                            {% if not item.submission %}
+                            <a href="{% url 'student:assignment-detail' item.assignment.id %}" 
+                               class="btn btn-danger">Soumettre en retard</a>
+                            {% else %}
+                            <a href="{% url 'student:assignment-detail' item.assignment.id %}" 
+                               class="btn btn-outline-danger">Voir détails</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="list-group-item">
+                        <p class="text-center mb-0">Aucun devoir en retard</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

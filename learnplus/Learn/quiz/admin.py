@@ -1,66 +1,99 @@
 from django.contrib import admin
-from . import models
+from .models import Quiz, Question, Answer, QuizAttempt, StudentResponse, Assignment, AssignmentSubmission
+from django.utils.safestring import mark_safe
+from actions.action import Action
 
 # Register your models here.
-class CustomAdmin(admin.ModelAdmin):
-    actions = ('activate','desactivate')
-    list_filter = ('status',)
+
+class AnswerInline(admin.TabularInline):
+    model = Answer
+    extra = 3
+
+@admin.register(Question)
+class QuestionAdmin(Action):
+    list_display = ('texte', 'quiz', 'question_type', 'points', 'status','date_add')
+    list_filter = ('quiz', 'question_type', 'status','date_add')
+    search_fields = ('texte',)
+    inlines = [AnswerInline]
+    date_hierarchy = 'date_add'
+    list_display_links = ['texte']
+    ordering = ['texte']
     list_per_page = 10
-    date_hierachy = "date_add"
+    fieldsets = [('Info Question',{'fields':['quiz','texte','question_type','points']}),
+                ('Status et Activations',{'fields':['status']})
+               ]
 
-    def activate(self,request,queryset):
-        queryset.update(status=True)
-        self.message_user(request,'la selection a été effectué avec succes')
-    activate.short_description = "permet d'activer le champs selectionner"
+class QuestionInline(admin.StackedInline):
+    model = Question
+    extra = 1
 
-    def desactivate(self,request,queryset):  
-        queryset.update(status=False)
-        self.message_user(request,'la selection a été effectué avec succes')
-    desactivate.short_description = "permet de desactiver le champs selectionner"
+@admin.register(Quiz)
+class QuizAdmin(Action):
+    list_display = ('titre', 'cours', 'date_debut', 'date_fin', 'duree', 'tentatives_max', 'status','date_add')
+    list_filter = ('cours', 'status','date_add')
+    search_fields = ('titre', 'description')
+    inlines = [QuestionInline]
+    date_hierarchy = 'date_add'
+    list_display_links = ['titre']
+    ordering = ['titre']
+    list_per_page = 10
+    fieldsets = [('Info Quiz',{'fields':['titre','description','cours','duree','tentatives_max','note_minimale']}),
+                ('Status et Activations',{'fields':['status','date_debut','date_fin']})
+               ]
 
-class QuestionAdmin(CustomAdmin):
-    list_display =('typequestion','point')
-    list_display_links = ['typequestion',]
-    search_fields = ('typequestion',)
-    fieldsets = [
-                 ("info question",{"fields":["typequestion","point","quiz","question"]}),
-                 ("standard",{"fields":["status"]})
-    ]
+@admin.register(QuizAttempt)
+class QuizAttemptAdmin(Action):
+    list_display = ('student', 'quiz', 'score', 'started_at', 'completed_at', 'status')
+    list_filter = ('quiz', 'student', 'status')
+    search_fields = ('student__username', 'quiz__titre')
+    readonly_fields = ('started_at',)
+    date_hierarchy = 'started_at'
+    list_display_links = ['student']
+    ordering = ['-started_at']
+    list_per_page = 10
+    fieldsets = [('Info Tentative',{'fields':['quiz','student','score','completed_at']}),
+                ('Status',{'fields':['status']})
+               ]
 
-class ReponseAdmin(CustomAdmin):
-    list_display = ('reponse','question','is_True','status')
-    list_display_links = ['reponse',]
-    search_fields = ('reponse',)
-    fieldsets = [
-                 ("info reponse",{"fields":["reponse","question","is_True"]}),
-                 ("standard",{"fields":["status"]})
-    ]
+@admin.register(StudentResponse)
+class StudentResponseAdmin(Action):
+    list_display = ('attempt', 'question', 'is_correct', 'date_add')
+    list_filter = ('is_correct', 'question__quiz','date_add')
+    search_fields = ('attempt__student__username', 'question__texte')
+    readonly_fields = ('date_add',)
+    date_hierarchy = 'date_add'
+    list_display_links = ['attempt']
+    ordering = ['-date_add']
+    list_per_page = 10
+    fieldsets = [('Info Réponse',{'fields':['attempt','question','selected_answers','text_response','is_correct']}),
+                ('Status',{'fields':['status']})
+               ]
 
-class QuizAdmin(CustomAdmin):
-    list_display = ('date','titre','temps','status')
-    list_display_links = ['titre',]
-    search_fields = ('titre',)
-    fieldsets = [
-                 ("info quiz",{"fields":["date","titre","cours","temps"]}),
-                 ("standard",{"fields":["status"]})
-    ]
+@admin.register(Assignment)
+class AssignmentAdmin(Action):
+    list_display = ('titre', 'cours', 'date_debut', 'date_limite', 'points_max', 'status','date_add')
+    list_filter = ('cours', 'status','date_add')
+    search_fields = ('titre', 'description')
+    date_hierarchy = 'date_add'
+    list_display_links = ['titre']
+    ordering = ['titre']
+    list_per_page = 10
+    fieldsets = [('Info Devoir',{'fields':['titre','description','cours','points_max','fichier_instruction']}),
+                ('Dates',{'fields':['date_debut','date_limite']}),
+                ('Status',{'fields':['status']})
+               ]
 
-class DevoirAdmin(CustomAdmin):
-    list_display = ('dateDebut','dateFermeture','chapitre','coefficient','support','status')
-    list_display_links = ('chapitre',)
-    search_fields = ('chapitre',)
-    fieldsets = [
-                 ("info devoir",{"fields":["dateDebut","dateFermeture",'chapitre','support' ]}),
-                 ("standard",{"fields":["status"]})
-    ]
-
-
-def _register(model,admin_class):
-    admin.site.register(model,admin_class)
-
-
-_register(models.Question, QuestionAdmin)
-_register(models.Reponse, ReponseAdmin)
-_register(models.Quiz, QuizAdmin)
-_register(models.Devoir, DevoirAdmin)
-
+@admin.register(AssignmentSubmission)
+class AssignmentSubmissionAdmin(Action):
+    list_display = ('student', 'assignment', 'note', 'submitted_at', 'is_late', 'status')
+    list_filter = ('assignment', 'status')
+    search_fields = ('student__username', 'assignment__titre')
+    readonly_fields = ('submitted_at', 'is_late')
+    date_hierarchy = 'submitted_at'
+    list_display_links = ['student']
+    ordering = ['-submitted_at']
+    list_per_page = 10
+    fieldsets = [('Info Soumission',{'fields':['assignment','student','fichier_reponse','commentaire']}),
+                ('Évaluation',{'fields':['note','feedback']}),
+                ('Status',{'fields':['status']})
+               ]

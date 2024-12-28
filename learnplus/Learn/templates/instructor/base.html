@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}LearnPlus - Interface Instructeur{% endblock %}</title>
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/static/images/favicon.ico">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+
+    <!-- Perfect Scrollbar -->
+    <link rel="stylesheet" href="/static/css/perfect-scrollbar.css">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <!-- Summernote -->
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/app.css">
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="layout-default">
+    <div class="preloader"></div>
+
+    <!-- Header -->
+    <div class="mdk-header-layout js-mdk-header-layout">
+        <div id="header" class="mdk-header js-mdk-header m-0">
+            <div class="mdk-header__content">
+                <div class="navbar navbar-expand-sm navbar-main navbar-dark bg-dark pr-0">
+                    <div class="container-fluid p-0">
+                        <!-- Navbar toggler -->
+                        <button class="navbar-toggler" type="button" data-toggle="sidebar">
+                            <span class="material-icons">menu</span>
+                        </button>
+
+                        <!-- Brand -->
+                        <a href="{% url 'instructor:dashboard' %}" class="navbar-brand">
+                            <img src="/static/images/logo.png" class="mr-2" alt="LearnPlus">
+                            <span>LearnPlus</span>
+                        </a>
+
+                        <!-- User -->
+                        <ul class="nav navbar-nav d-none d-sm-flex navbar-height align-items-center">
+                            <li class="nav-item dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
+                                    {% if request.user.instructor.photo %}
+                                    <img src="{{ request.user.instructor.photo.url }}" alt="User" class="rounded-circle" width="32">
+                                    {% else %}
+                                    <img src="/static/images/avatar.png" alt="User" class="rounded-circle" width="32">
+                                    {% endif %}
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-right">
+                                    <a class="dropdown-item" href="{% url 'instructor:profile' %}">
+                                        <i class="fas fa-user"></i> Mon profil
+                                    </a>
+                                    <a class="dropdown-item" href="{% url 'logout' %}">
+                                        <i class="fas fa-sign-out-alt"></i> Déconnexion
+                                    </a>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="mdk-header-layout__content">
+            <div class="mdk-drawer-layout js-mdk-drawer-layout">
+                <div class="mdk-drawer-layout__content page">
+                    <!-- Messages -->
+                    {% if messages %}
+                    <div class="container-fluid">
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <div class="container-fluid page__heading-container">
+                        <div class="page__heading d-flex align-items-center">
+                            <div class="flex">
+                                <h1 class="m-0">{% block page_title %}{% endblock %}</h1>
+                            </div>
+                            {% block page_actions %}{% endblock %}
+                        </div>
+                    </div>
+
+                    <div class="container-fluid page__container">
+                        {% block content %}{% endblock %}
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="mdk-drawer js-mdk-drawer" id="default-drawer">
+                    <div class="mdk-drawer__content">
+                        <div class="sidebar sidebar-dark sidebar-left">
+                            <div class="sidebar-p-a">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex">
+                                        <strong class="sidebar-brand">Menu</strong>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <ul class="sidebar-menu">
+                                <li class="sidebar-menu-item">
+                                    <a class="sidebar-menu-button" href="{% url 'instructor:dashboard' %}">
+                                        <i class="fas fa-home"></i>
+                                        <span class="sidebar-menu-text">Tableau de bord</span>
+                                    </a>
+                                </li>
+                                <li class="sidebar-menu-item">
+                                    <a class="sidebar-menu-button" href="{% url 'instructor:chapters' %}">
+                                        <i class="fas fa-book"></i>
+                                        <span class="sidebar-menu-text">Chapitres</span>
+                                    </a>
+                                </li>
+                                <li class="sidebar-menu-item">
+                                    <a class="sidebar-menu-button" href="{% url 'instructor:courses' %}">
+                                        <i class="fas fa-graduation-cap"></i>
+                                        <span class="sidebar-menu-text">Cours</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="/static/js/jquery.min.js"></script>
+
+    <!-- Bootstrap -->
+    <script src="/static/js/popper.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+
+    <!-- Perfect Scrollbar -->
+    <script src="/static/js/perfect-scrollbar.min.js"></script>
+
+    <!-- DOM Factory -->
+    <script src="/static/js/dom-factory.js"></script>
+
+    <!-- MDK -->
+    <script src="/static/js/material-design-kit.js"></script>
+
+    <!-- Summernote -->
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js"></script>
+
+    <!-- App JS -->
+    <script src="/static/js/app.js"></script>
+
+    <!-- Initialize Summernote -->
+    <script>
+        $(document).ready(function() {
+            $('.summernote').summernote({
+                height: 300,
+                toolbar: [
+                    ['style', ['style']],
+                    ['font', ['bold', 'underline', 'clear']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['table', ['table']],
+                    ['insert', ['link', 'picture']],
+                    ['view', ['fullscreen', 'codeview', 'help']]
+                ]
+            });
+        });
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

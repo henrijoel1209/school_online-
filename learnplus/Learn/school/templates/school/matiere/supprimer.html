@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Supprimer la matière{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h3 class="mb-0">Confirmer la suppression</h3>
+                </div>
+                <div class="card-body">
+                    <p class="lead">
+                        Êtes-vous sûr de vouloir supprimer la matière <strong>{{ matiere.nom }}</strong> ?
+                    </p>
+                    <p class="text-danger">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Cette action est irréversible et supprimera également :
+                    </p>
+                    <ul class="text-danger">
+                        <li>Tous les chapitres associés</li>
+                        <li>Tous les cours associés</li>
+                        <li>Toutes les ressources associées</li>
+                    </ul>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'school:liste_matieres' %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Annuler
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash"></i> Confirmer la suppression
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

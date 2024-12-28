@@ -1,8 +1,10 @@
 from django.urls import path
 from . import views 
 
+app_name = 'student'
+
 urlpatterns = [
-    path('', views.index, name="index_student"), 
+    path('', views.index, name="dashboard"), 
     # path('payment', views.payment, name='payment'),
     # path('subscription', views.subscription, name='subscription'), 
     # path('upgrade', views.upgrade, name='upgrade'),
@@ -31,11 +33,29 @@ urlpatterns = [
     path('take_quiz', views.take_quiz, name='take-quiz'),
     path('view_course', views.view_course, name='view-course'),
 
+    # URLs pour les notes
+    path('grades/', views.grades, name='grades'),
+    path('grades/course/<slug:course_slug>/', views.course_grade_detail, name='course-grade-detail'),
+    path('grades/quiz/<int:quiz_id>/', views.quiz_grade_detail, name='quiz-grade-detail'),
+
+    # URLs pour les devoirs
+    path('assignments/', views.assignments, name='assignments'),
+    path('assignments/<int:assignment_id>/', views.assignment_detail, name='assignment-detail'),
+    path('assignments/delete/<int:submission_id>/', views.delete_submission, name='delete-submission'),
+
+    # URLs pour la progression
+    path('dashboard/', views.learning_dashboard, name='learning-dashboard'),
+    path('progress/<slug:course_slug>/', views.course_progress_detail, name='course-progress-detail'),
+    path('progress/update/', views.update_chapter_progress, name='update-chapter-progress'),
+
+    # URLs pour l'inscription des étudiants
+    path('register/', views.register_student, name='register'),
+    path('bulk-register/', views.bulk_register_students, name='bulk_register'),
+    path('list/', views.student_list, name='student_list'),
 
     ########## post ###############
     path('update_profil', views.update_profil, name='update_profil'),
     path('update_password', views.update_password, name='update_password'),
     path('post_forum', views.post_forum, name='post_forum'),
     path('post_forum_g', views.post_forum_g, name='post_forum_g'),
-
 ]

@@ -31,7 +31,7 @@ class StudentAdmin(CustomAdmin):
     def image_view(self,obj):
         return mark_safe("<img src ='{url}' width='100px',height='50px'>".format(url=obj.photo.url))
 
-class StudentReponseAdmin(CustomAdmin):
+class StudentResponseAdmin(CustomAdmin):
     list_display = ('student','status')
     list_display_links = ['student',]
     search_fields = ('student',)
@@ -46,7 +46,7 @@ def _register(model,admin_class):
 
 
 _register(models.Student, StudentAdmin)
-_register(models.StudentReponse, StudentReponseAdmin)
+_register(models.StudentResponse, StudentResponseAdmin)
 
 
 

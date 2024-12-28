@@ -1,0 +1,14 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Erreur{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="error-page">
+        <h1>{{ error_code }}</h1>
+        <h2>{{ error_message }}</h2>
+        <p>{{ error_description }}</p>
+        <a href="{% url 'home' %}" class="btn btn-primary">Retour à l'accueil</a>
+    </div>
+</div>
+{% endblock %}

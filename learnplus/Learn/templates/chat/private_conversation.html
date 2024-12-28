@@ -1,0 +1,120 @@
+{% extends 'chat/chat_base.html' %}
+{% load static %}
+
+{% block chat_content %}
+<div class="card">
+    <div class="card-header">
+        <h4 class="card-title">
+            {{ other_user.username }}
+            {% if other_user.instructor %}
+            <span class="badge badge-soft-primary">Instructeur</span>
+            {% elif other_user.student %}
+            <span class="badge badge-soft-success">Étudiant</span>
+            {% endif %}
+        </h4>
+    </div>
+    
+    <div class="card-body">
+        <div class="chat-messages" id="chatMessages">
+            {% for message in messages %}
+            <div class="message {% if message.sender == user %}message-right{% endif %}">
+                <div class="message-content">
+                    <div class="message-text">{{ message.content }}</div>
+                    {% if message.file_attachment %}
+                    <div class="message-attachment">
+                        <a href="{{ message.file_attachment.url }}" target="_blank">
+                            <i class="material-icons">attach_file</i> {{ message.file_attachment.name|slice:"14:" }}
+                        </a>
+                    </div>
+                    {% endif %}
+                    <div class="message-date">{{ message.date_add|time:"H:i" }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <div class="card-footer">
+        <form id="messageForm" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="input-group">
+                <input type="text" class="form-control" name="content" placeholder="Écrivez votre message..." required>
+                <div class="input-group-append">
+                    <label class="btn btn-outline-secondary mb-0">
+                        <i class="material-icons">attach_file</i>
+                        <input type="file" name="file" style="display: none;">
+                    </label>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="material-icons">send</i>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+    $(document).ready(function() {
+        // Scroll to bottom of chat
+        var chatMessages = document.getElementById('chatMessages');
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        
+        // Handle file input change
+        $('input[type="file"]').change(function() {
+            var fileName = $(this).val().split('\\').pop();
+            if (fileName) {
+                $(this).parent().addClass('btn-primary').removeClass('btn-outline-secondary');
+            } else {
+                $(this).parent().addClass('btn-outline-secondary').removeClass('btn-primary');
+            }
+        });
+        
+        // Handle form submission with AJAX
+        $('#messageForm').submit(function(e) {
+            e.preventDefault();
+            var form = $(this);
+            var formData = new FormData(this);
+            
+            $.ajax({
+                url: window.location.href,
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        // Add message to chat
+                        var messageHtml = `
+                            <div class="message message-right">
+                                <div class="message-content">
+                                    <div class="message-text">${response.message.content}</div>
+                                    ${response.message.file ? `
+                                    <div class="message-attachment">
+                                        <a href="${response.message.file}" target="_blank">
+                                            <i class="material-icons">attach_file</i> ${response.message.file.split('/').pop()}
+                                        </a>
+                                    </div>
+                                    ` : ''}
+                                    <div class="message-date">${response.message.date}</div>
+                                </div>
+                            </div>
+                        `;
+                        $('#chatMessages').append(messageHtml);
+                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                        
+                        // Reset form
+                        form[0].reset();
+                        $('input[type="file"]').parent().addClass('btn-outline-secondary').removeClass('btn-primary');
+                    }
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

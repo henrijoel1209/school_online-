@@ -1,0 +1,160 @@
+{% extends 'pages/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="page-content">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1>Mes cours</h1>
+                    <a href="{% url 'instructor:course_add' %}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Nouveau cours
+                    </a>
+                </div>
+
+                <!-- Filtres -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <form method="get" class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="matiere">Matière</label>
+                                    <select name="matiere" id="matiere" class="form-control">
+                                        <option value="">Toutes les matières</option>
+                                        {% for matiere in matieres %}
+                                        <option value="{{ matiere.id }}" {% if selected_matiere == matiere.id %}selected{% endif %}>
+                                            {{ matiere.nom }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="chapitre">Chapitre</label>
+                                    <select name="chapitre" id="chapitre" class="form-control">
+                                        <option value="">Tous les chapitres</option>
+                                        {% for chapitre in chapitres %}
+                                        <option value="{{ chapitre.id }}" {% if selected_chapitre == chapitre.id %}selected{% endif %}>
+                                            {{ chapitre.titre }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>&nbsp;</label>
+                                    <button type="submit" class="btn btn-primary btn-block">Filtrer</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Liste des cours -->
+                <div class="row">
+                    {% for cours_item in cours %}
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            {% if cours_item.image %}
+                            <img src="{{ cours_item.image.url }}" class="card-img-top" alt="{{ cours_item.titre }}">
+                            {% endif %}
+                            <div class="card-body">
+                                <h5 class="card-title">{{ cours_item.titre }}</h5>
+                                <p class="card-text">{{ cours_item.description|truncatewords:20 }}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">{{ cours_item.chapitre.matiere.nom }}</small>
+                                    <small class="text-muted">{{ cours_item.lecons.count }} leçons</small>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-transparent">
+                                <div class="btn-group btn-block">
+                                    <a href="{% url 'instructor:course_edit' cours_item.slug %}" class="btn btn-outline-primary">
+                                        <i class="fas fa-edit"></i> Modifier
+                                    </a>
+                                    <a href="{% url 'instructor:lesson-add' cours_item.slug %}" class="btn btn-outline-success">
+                                        <i class="fas fa-plus"></i> Leçon
+                                    </a>
+                                    <button type="button" class="btn btn-outline-danger" 
+                                            onclick="confirmDelete('{% url 'instructor:course_delete' cours_item.slug %}')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-12">
+                        <div class="alert alert-info">
+                            Aucun cours trouvé.
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Pagination -->
+                {% if cours.has_other_pages %}
+                <nav aria-label="Page navigation" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if cours.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ cours.previous_page_number }}" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        {% endif %}
+
+                        {% for i in cours.paginator.page_range %}
+                        <li class="page-item {% if cours.number == i %}active{% endif %}">
+                            <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                        </li>
+                        {% endfor %}
+
+                        {% if cours.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ cours.next_page_number }}" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmation de suppression -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmation de suppression</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Êtes-vous sûr de vouloir supprimer ce cours ? Cette action est irréversible.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                <form id="deleteForm" method="post" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Supprimer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmDelete(url) {
+    document.getElementById('deleteForm').action = url;
+    $('#deleteModal').modal('show');
+}
+</script>
+{% endblock %}

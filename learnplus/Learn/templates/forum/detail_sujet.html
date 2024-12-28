@@ -1,0 +1,99 @@
+{% extends 'pages/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    {% if sujet.cours %}
+                        <li class="breadcrumb-item"><a href="{% url 'forum:liste_sujets_cours' sujet.cours.id %}">Forum - {{ sujet.cours.titre }}</a></li>
+                    {% else %}
+                        <li class="breadcrumb-item"><a href="{% url 'forum:liste_sujets' %}">Forum général</a></li>
+                    {% endif %}
+                    <li class="breadcrumb-item active">{{ sujet.titre }}</li>
+                </ol>
+            </nav>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h2 class="mb-0">{{ sujet.titre }}</h2>
+                    {% if request.user == sujet.user %}
+                        <div class="btn-group">
+                            <a href="{% url 'forum:modifier_sujet' sujet.slug %}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-edit"></i> Modifier
+                            </a>
+                            <a href="{% url 'forum:supprimer_sujet' sujet.slug %}" class="btn btn-sm btn-outline-danger" 
+                               onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce sujet ?')">
+                                <i class="fas fa-trash"></i> Supprimer
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-3">
+                        <div>
+                            <strong>{{ sujet.user.get_full_name|default:sujet.user.username }}</strong>
+                        </div>
+                        <small class="text-muted">{{ sujet.date_add|date:"d/m/Y H:i" }}</small>
+                    </div>
+                    <p class="card-text">{{ sujet.question|linebreaks }}</p>
+                </div>
+            </div>
+
+            <h3 class="mb-4">Réponses ({{ reponses.count }})</h3>
+
+            {% for reponse in reponses %}
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-3">
+                            <div>
+                                <strong>{{ reponse.user.get_full_name|default:reponse.user.username }}</strong>
+                            </div>
+                            <div>
+                                <small class="text-muted">{{ reponse.date_add|date:"d/m/Y H:i" }}</small>
+                                {% if request.user == reponse.user %}
+                                    <div class="btn-group ml-2">
+                                        <a href="{% url 'forum:modifier_reponse' reponse.id %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{% url 'forum:supprimer_reponse' reponse.id %}" class="btn btn-sm btn-outline-danger"
+                                           onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette réponse ?')">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <p class="card-text">{{ reponse.reponse|linebreaks }}</p>
+                    </div>
+                </div>
+            {% endfor %}
+
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h4 class="mb-0">Répondre</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i> Envoyer
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

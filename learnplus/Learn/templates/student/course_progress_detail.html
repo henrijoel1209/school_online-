@@ -1,0 +1,159 @@
+{% extends 'pages/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container page__container">
+    <div class="page-section">
+        <div class="page-separator">
+            <div class="page-separator__text">Progression : {{ progress.course.titre }}</div>
+        </div>
+
+        <!-- Vue d'ensemble du cours -->
+        <div class="card mb-32pt">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-4">
+                        <div class="text-center">
+                            <h4 class="mb-0">{{ progress.progress_percentage|floatformat:1 }}%</h4>
+                            <p class="text-muted">Progression totale</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="text-center">
+                            <h4 class="mb-0">{{ progress.completed_chapter_count }}/{{ progress.total_chapter_count }}</h4>
+                            <p class="text-muted">Chapitres complétés</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="text-center">
+                            <h4 class="mb-0">{{ progress.time_spent|time:"H:i" }}</h4>
+                            <p class="text-muted">Temps passé</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progression par chapitre -->
+        <div class="card mb-32pt">
+            <div class="card-header">
+                <h4 class="card-title">Progression par Chapitre</h4>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    {% for chapter in chapter_progress %}
+                    <div class="list-group-item">
+                        <div class="row align-items-center">
+                            <div class="col-md-4">
+                                <h5 class="mb-1">{{ chapter.chapter.titre }}</h5>
+                                <p class="text-muted mb-0">
+                                    Temps passé : {{ chapter.time_spent|time:"H:i" }}
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex">
+                                        <div class="progress" style="height: 20px;">
+                                            <div class="progress-bar {% if chapter.completed %}bg-success{% endif %}" 
+                                                 role="progressbar" 
+                                                 style="width: {% if chapter.completed %}100{% else %}{{ chapter.last_position }}{% endif %}%"
+                                                 aria-valuenow="{% if chapter.completed %}100{% else %}{{ chapter.last_position }}{% endif %}" 
+                                                 aria-valuemin="0" 
+                                                 aria-valuemax="100">
+                                                {% if chapter.completed %}
+                                                Terminé
+                                                {% else %}
+                                                En cours ({{ chapter.last_position }}%)
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-2 text-right">
+                                {% if chapter.completed %}
+                                <span class="badge badge-success">Terminé</span>
+                                {% else %}
+                                <span class="badge badge-warning">En cours</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="list-group-item">
+                        <p class="text-center mb-0">Aucun chapitre disponible</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Historique des activités -->
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title">Historique des Activités</h4>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    {% for activity in activities %}
+                    <div class="list-group-item">
+                        <div class="d-flex align-items-center">
+                            <div class="flex">
+                                <div class="d-flex align-items-center">
+                                    <div>
+                                        <strong>{{ activity.get_activity_type_display }}</strong>
+                                        {% if activity.chapter %}
+                                        <small class="text-muted ml-2">
+                                            {{ activity.chapter.titre }}
+                                        </small>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <small class="text-muted">{{ activity.timestamp|date:"d/m/Y H:i" }}</small>
+                                {% if activity.details %}
+                                <div class="text-muted mt-1">
+                                    {{ activity.details|safe }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="list-group-item">
+                        <p class="text-center mb-0">Aucune activité enregistrée</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block js %}
+<script>
+// Fonction pour mettre à jour la progression
+function updateProgress(chapterId, position, duration, completed) {
+    $.ajax({
+        url: '{% url "student:update-chapter-progress" %}',
+        type: 'POST',
+        data: {
+            'chapter_id': chapterId,
+            'position': position,
+            'duration': duration,
+            'completed': completed,
+            'csrfmiddlewaretoken': '{{ csrf_token }}'
+        },
+        success: function(response) {
+            if (response.success) {
+                // Mettre à jour l'interface si nécessaire
+                console.log('Progression mise à jour:', response.progress);
+            }
+        },
+        error: function(xhr, errmsg, err) {
+            console.error('Erreur lors de la mise à jour de la progression:', errmsg);
+        }
+    });
+}
+</script>
+{% endblock %}
+{% endblock %}

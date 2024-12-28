@@ -5,7 +5,7 @@
                 <div class="sidebar-heading">APPLICATIONS</div>
                 <ul class="sidebar-menu sm-active-button-bg"> 
                     <li class="sidebar-menu-item active">
-                        <a class="sidebar-menu-button" href="{% url 'dashboard' %}">
+                        <a class="sidebar-menu-button" href="{% url 'instructor:dashboard' %}">
                             <i class="sidebar-menu-icon sidebar-menu-icon--left material-icons">school</i> Instructor
                         </a>
                     </li>
@@ -21,14 +21,14 @@
                         </a>
                         <ul class="sidebar-submenu sm-indent collapse" id="account_menu">
                             <li class="sidebar-menu-item">
-                                <a class="sidebar-menu-button" href="{% url 'instructor-account-edit' %}">
+                                <a class="sidebar-menu-button" href="{% url 'instructor:account-edit' %}">
                                     <span class="sidebar-menu-text">Edit Account</span>
                                 </a>
                             </li>
                         </ul>
                     </li>
                     <li class="sidebar-menu-item">
-                        <a class="sidebar-menu-button"  href="{% url 'instructor-messages'  user.instructor.classe %}">
+                        <a class="sidebar-menu-button" href="{% url 'instructor:messages' user.instructor.classe %}">
                             <i class="sidebar-menu-icon sidebar-menu-icon--left material-icons">comment</i> Messages
                         </a>
                     </li>
@@ -36,13 +36,13 @@
                 <div class="sidebar-heading">Instructor</div>
                 <ul class="sidebar-menu sm-active-button-bg">
                     <li class="sidebar-menu-item">
-                        <a class="sidebar-menu-button" href="{% url 'instructor-courses' %}">
+                        <a class="sidebar-menu-button" href="{% url 'instructor:courses' %}">
                             <i class="sidebar-menu-icon sidebar-menu-icon--left material-icons">import_contacts</i>
                             Course Manager
                         </a>
                     </li>
                     <li class="sidebar-menu-item">
-                        <a class="sidebar-menu-button" href="{% url 'instructor-quizzes' %}">
+                        <a class="sidebar-menu-button" href="{% url 'instructor:quizzes' %}">
                             <i class="sidebar-menu-icon sidebar-menu-icon--left material-icons">help</i> Quiz Manager
                         </a>
                     </li>
@@ -54,19 +54,19 @@
                         </a>
                         <ul class="sidebar-submenu sm-indent collapse" id="forum_menu">
                             <li class="sidebar-menu-item">
-                                <a class="sidebar-menu-button" href="{% url 'instructor-forum' %}">
+                                <a class="sidebar-menu-button" href="{% url 'instructor:forum' %}">
                                     <span class="sidebar-menu-text">Forum</span>
                                 </a> 
                             </li>
                             <li class="sidebar-menu-item">
-                                <a class="sidebar-menu-button" href="{% url 'instructor-forum-ask' %}">
+                                <a class="sidebar-menu-button" href="{% url 'instructor:forum-ask' %}">
                                     <span class="sidebar-menu-text">Ask Question</span>
                                 </a>
                             </li>
                         </ul>
                     </li>
                     <li class="sidebar-menu-item">
-                        <a class="sidebar-menu-button" href="{% url 'deconnexion' %}">
+                        <a class="sidebar-menu-button" href="{% url 'school:logout' %}">
                             <i class="sidebar-menu-icon sidebar-menu-icon--left material-icons">lock_open</i> Logout
                         </a>
                     </li>

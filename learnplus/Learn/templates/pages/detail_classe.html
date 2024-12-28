@@ -1,0 +1,150 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block title %}{{ classe }} - Détails{% endblock %}
+
+{% block content %}
+<div class="container page__container">
+    <div class="page-section">
+        
+        <div class="page-separator">
+            <div class="page-separator__text">{{ classe }}</div>
+        </div>
+
+        <!-- Informations générales -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4 class="card-title">Informations générales</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <p><strong>Niveau:</strong> {{ classe.niveau }}</p>
+                        <p><strong>Filière:</strong> {{ classe.filiere }}</p>
+                    </div>
+                    <div class="col-md-4">
+                        <p><strong>Nombre d'étudiants:</strong> {{ students.count }}</p>
+                        <p><strong>Nombre de chapitres:</strong> {{ chapitres.count }}</p>
+                    </div>
+                    <div class="col-md-4">
+                        <p><strong>Moyenne générale:</strong> {{ average_score|floatformat:1 }}/20</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Liste des chapitres -->
+        <div class="page-separator">
+            <div class="page-separator__text">Chapitres</div>
+        </div>
+
+        <div class="row card-group-row">
+            {% for chapitre in chapitres %}
+            <div class="col-md-6 col-lg-4 card-group-row__col">
+                <div class="card card-group-row__card">
+                    {% if chapitre.image %}
+                    <img src="{{ chapitre.image.url }}" 
+                         class="card-img-top" 
+                         alt="{{ chapitre.titre }}">
+                    {% endif %}
+                    <div class="card-body d-flex flex-column">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="flex">
+                                <div class="card-title mb-0">{{ chapitre.titre }}</div>
+                                <div class="card-subtitle text-muted">{{ chapitre.matiere }}</div>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <p class="mb-2">{{ chapitre.description|truncatewords:20 }}</p>
+                            <p class="mb-0">
+                                <span class="mr-1">{{ chapitre.get_cours.count }}</span>
+                                <small class="text-muted">cours</small>
+                            </p>
+                            {% if chapitre.duree_en_heure %}
+                            <p class="mb-0">
+                                <span class="mr-1">{{ chapitre.duree_en_heure }}</span>
+                                <small class="text-muted">heures</small>
+                            </p>
+                            {% endif %}
+                        </div>
+                        <div class="d-flex justify-content-between mt-auto">
+                            <a href="{% url 'detail_chapitre' chapitre.slug %}" 
+                               class="btn btn-outline-secondary">Voir détails</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    Aucun chapitre disponible pour cette classe.
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Liste des étudiants -->
+        <div class="page-separator">
+            <div class="page-separator__text">Étudiants</div>
+        </div>
+
+        <div class="card">
+            <div class="table-responsive">
+                <table class="table mb-0 thead-border-top-0 table-nowrap">
+                    <thead>
+                        <tr>
+                            <th>Étudiant</th>
+                            <th>Email</th>
+                            <th>Progression</th>
+                            <th>Moyenne</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in students %}
+                        <tr>
+                            <td>
+                                <div class="media align-items-center">
+                                    {% if student.avatar %}
+                                    <img src="{{ student.avatar.url }}" 
+                                         alt="student" 
+                                         width="40" 
+                                         class="rounded-circle mr-2">
+                                    {% endif %}
+                                    <div class="media-body">
+                                        <span class="js-lists-values-employee-name">{{ student.user.get_full_name|default:student.user.username }}</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ student.user.email }}</td>
+                            <td>
+                                <div class="progress" style="height: 3px;">
+                                    <div class="progress-bar" 
+                                         role="progressbar" 
+                                         style="width: {{ student.get_overall_progress }}%;"
+                                         aria-valuenow="{{ student.get_overall_progress }}" 
+                                         aria-valuemin="0" 
+                                         aria-valuemax="100"></div>
+                                </div>
+                            </td>
+                            <td>{{ student.get_average_score|floatformat:1 }}/20</td>
+                            <td>
+                                <a href="{% url 'student_profile' student.user.username %}" 
+                                   class="btn btn-outline-secondary btn-sm">Voir profil</a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center">
+                                Aucun étudiant dans cette classe.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

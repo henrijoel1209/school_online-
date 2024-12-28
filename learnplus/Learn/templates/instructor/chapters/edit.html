@@ -1,0 +1,175 @@
+{% extends 'pages/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="page-content">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title">Modifier le chapitre</h4>
+                    </div>
+                    <div class="card-body">
+                        <form method="post">
+                            {% csrf_token %}
+                            
+                            <!-- Matière -->
+                            <div class="form-group">
+                                <label for="matiere">Matière</label>
+                                <select name="matiere" id="matiere" class="form-control" required>
+                                    <option value="">Sélectionnez une matière</option>
+                                    {% for matiere in matieres %}
+                                    <option value="{{ matiere.id }}" {% if chapitre.matiere.id == matiere.id %}selected{% endif %}>
+                                        {{ matiere.nom }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <!-- Titre -->
+                            <div class="form-group">
+                                <label for="titre">Titre du chapitre</label>
+                                <input type="text" class="form-control" id="titre" name="titre" 
+                                       value="{{ chapitre.titre }}" required>
+                            </div>
+
+                            <!-- Description -->
+                            <div class="form-group">
+                                <label for="description">Description</label>
+                                <textarea class="form-control" id="description" name="description" 
+                                          rows="5" required>{{ chapitre.description }}</textarea>
+                            </div>
+
+                            <!-- Dates -->
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="date_debut">Date de début</label>
+                                        <input type="date" class="form-control" id="date_debut" name="date_debut" 
+                                               value="{{ chapitre.date_debut|date:'Y-m-d' }}" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="date_fin">Date de fin</label>
+                                        <input type="date" class="form-control" id="date_fin" name="date_fin" 
+                                               value="{{ chapitre.date_fin|date:'Y-m-d' }}" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Objectifs -->
+                            <div class="form-group">
+                                <label for="objectifs">Objectifs d'apprentissage</label>
+                                <textarea class="form-control" id="objectifs" name="objectifs" 
+                                          rows="3">{{ chapitre.objectifs }}</textarea>
+                                <small class="form-text text-muted">
+                                    Listez les objectifs d'apprentissage que les étudiants atteindront à la fin de ce chapitre.
+                                </small>
+                            </div>
+
+                            <!-- Prérequis -->
+                            <div class="form-group">
+                                <label for="prerequis">Prérequis</label>
+                                <textarea class="form-control" id="prerequis" name="prerequis" 
+                                          rows="3">{{ chapitre.prerequis }}</textarea>
+                                <small class="form-text text-muted">
+                                    Listez les connaissances préalables nécessaires pour aborder ce chapitre.
+                                </small>
+                            </div>
+
+                            <!-- Ordre -->
+                            <div class="form-group">
+                                <label for="ordre">Ordre dans la matière</label>
+                                <input type="number" class="form-control" id="ordre" name="ordre" 
+                                       min="1" value="{{ chapitre.ordre }}">
+                                <small class="form-text text-muted">
+                                    L'ordre dans lequel ce chapitre apparaîtra dans la liste des chapitres de la matière.
+                                </small>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="status" 
+                                           name="status" {% if chapitre.status %}checked{% endif %}>
+                                    <label class="custom-control-label" for="status">Activer ce chapitre</label>
+                                </div>
+                            </div>
+
+                            <!-- Résumé des cours -->
+                            <div class="card mb-3">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0">Cours dans ce chapitre</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="list-group">
+                                        {% for cours in chapitre.cours_set.all %}
+                                        <div class="list-group-item">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <h6 class="mb-1">{{ cours.titre }}</h6>
+                                                <div>
+                                                    <a href="{% url 'instructor:course_edit' cours.slug %}" 
+                                                       class="btn btn-sm btn-outline-primary">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% empty %}
+                                        <p class="text-muted mb-0">Aucun cours dans ce chapitre</p>
+                                        {% endfor %}
+                                    </div>
+                                    <div class="mt-3">
+                                        <a href="{% url 'instructor:course_add' %}?chapitre={{ chapitre.id }}" 
+                                           class="btn btn-sm btn-primary">
+                                            <i class="fas fa-plus"></i> Ajouter un cours
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
+                                <a href="{% url 'instructor:chapters' %}" class="btn btn-secondary">Annuler</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Initialisation de l'éditeur de texte riche pour la description
+    $('#description').summernote({
+        height: 200,
+        toolbar: [
+            ['style', ['style']],
+            ['font', ['bold', 'italic', 'underline', 'clear']],
+            ['fontname', ['fontname']],
+            ['color', ['color']],
+            ['para', ['ul', 'ol', 'paragraph']],
+            ['table', ['table']],
+            ['insert', ['link']],
+            ['view', ['fullscreen', 'codeview']]
+        ]
+    });
+
+    // Validation des dates
+    $('#date_fin').change(function() {
+        var dateDebut = new Date($('#date_debut').val());
+        var dateFin = new Date($('#date_fin').val());
+        
+        if (dateFin < dateDebut) {
+            alert('La date de fin doit être postérieure à la date de début');
+            $(this).val('');
+        }
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}

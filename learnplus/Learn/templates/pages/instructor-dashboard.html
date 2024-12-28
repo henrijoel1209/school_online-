@@ -3,7 +3,7 @@
                 <div class="mdk-drawer-layout__content page ">
                     <div class="container-fluid page__container">
                         <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="student-dashboard.html">Home</a></li>
+                            <li class="breadcrumb-item"><a href="{% url 'instructor:dashboard' %}">Home</a></li>
                             <li class="breadcrumb-item active">Courses</li>
                         </ol>
                         <div class="media align-items-center mb-headings">
@@ -17,9 +17,9 @@
                             {% for i in matiere %}
                             <div class="card">
                                 <div class="card-header text-center">
-                                    <h4 class="card-title mb-0"><a href="{% url 'instructor-matiere' i.slug %}">{{ i.nom }}</a></h4>
+                                    <h4 class="card-title mb-0"><a href="{% url 'instructor:matiere' i.slug %}">{{ i.nom }}</a></h4>
                                 </div>
-                                <a href="{% url 'instructor-matiere' i.slug %}">
+                                <a href="{% url 'instructor:matiere' i.slug %}">
                                     <img src="{{i.image.url}}" alt="Card image cap" style="width:100%;">
                                 </a>
                                 <div class="card-body">

@@ -1,0 +1,111 @@
+{% extends 'pages/base.html' %}
+{% load static %}
+
+{% block title %}Question - {{ quiz.titre }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h3 class="mb-0">{{ attempt.quiz.titre }}</h3>
+                    <div id="timer" class="badge badge-light">
+                        <i class="fas fa-clock"></i> <span id="time-remaining"></span>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <div class="question-header mb-4">
+                        <div class="progress">
+                            {% with total_questions=attempt.quiz.questions.count %}
+                            {% with answered_questions=attempt.responses.count %}
+                            <div class="progress-bar" role="progressbar" 
+                                style="width: {{ answered_questions|add:1|multiply:100|divide:total_questions }}%">
+                                Question {{ answered_questions|add:1 }}/{{ total_questions }}
+                            </div>
+                            {% endwith %}
+                            {% endwith %}
+                        </div>
+                    </div>
+                    
+                    <div class="question-content">
+                        <h4>{{ question.texte }}</h4>
+                        
+                        <form method="post" class="mt-4">
+                            {% csrf_token %}
+                            
+                            {% if question.question_type == 'text' %}
+                            <div class="form-group">
+                                {{ form.text_response }}
+                            </div>
+                            
+                            {% else %}
+                            <div class="answers-list">
+                                {{ form.selected_answers }}
+                            </div>
+                            {% endif %}
+                            
+                            <div class="text-center mt-4">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    Valider et continuer
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Timer
+    function updateTimer() {
+        fetch(`{% url 'quiz:check_time' attempt.id %}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.completed) {
+                    window.location.href = `{% url 'quiz:quiz_result' attempt.id %}`;
+                } else {
+                    const minutes = Math.floor(data.time_left / 60);
+                    const seconds = Math.floor(data.time_left % 60);
+                    document.getElementById('time-remaining').textContent = 
+                        `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                    
+                    if (data.time_left < 300) { // 5 minutes
+                        document.getElementById('timer').classList.add('badge-danger');
+                    } else if (data.time_left < 600) { // 10 minutes
+                        document.getElementById('timer').classList.add('badge-warning');
+                    }
+                }
+            });
+    }
+    
+    // Update timer every second
+    document.addEventListener('DOMContentLoaded', function() {
+        updateTimer();
+        setInterval(updateTimer, 1000);
+        
+        // Style des réponses
+        const answers = document.querySelectorAll('.answers-list input');
+        answers.forEach(answer => {
+            const label = answer.parentElement;
+            label.classList.add('btn', 'btn-outline-primary', 'btn-block', 'text-left', 'mb-2');
+            
+            answer.addEventListener('change', function() {
+                if (this.type === 'radio') {
+                    answers.forEach(a => a.parentElement.classList.remove('active'));
+                }
+                if (this.checked) {
+                    label.classList.add('active');
+                } else {
+                    label.classList.remove('active');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

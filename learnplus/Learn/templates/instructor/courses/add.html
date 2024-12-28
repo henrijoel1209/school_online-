@@ -1,0 +1,110 @@
+{% extends 'pages/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="page-content">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title">Nouveau cours</h4>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            
+                            <!-- Chapitre -->
+                            <div class="form-group">
+                                <label for="chapitre">Chapitre</label>
+                                <select name="chapitre" id="chapitre" class="form-control" required>
+                                    <option value="">Sélectionnez un chapitre</option>
+                                    {% for chapitre in chapitres %}
+                                    <option value="{{ chapitre.id }}">
+                                        {{ chapitre.matiere.nom }} - {{ chapitre.titre }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <!-- Titre -->
+                            <div class="form-group">
+                                <label for="titre">Titre du cours</label>
+                                <input type="text" class="form-control" id="titre" name="titre" required>
+                            </div>
+
+                            <!-- Description -->
+                            <div class="form-group">
+                                <label for="description">Description</label>
+                                <textarea class="form-control" id="description" name="description" rows="5" required></textarea>
+                            </div>
+
+                            <!-- Image -->
+                            <div class="form-group">
+                                <label for="image">Image du cours</label>
+                                <input type="file" class="form-control-file" id="image" name="image">
+                            </div>
+
+                            <!-- Fichier -->
+                            <div class="form-group">
+                                <label for="fichier">Fichier du cours (PDF)</label>
+                                <input type="file" class="form-control-file" id="fichier" name="fichier">
+                            </div>
+
+                            <!-- Vidéo -->
+                            <div class="form-group">
+                                <label for="video">Vidéo du cours</label>
+                                <input type="file" class="form-control-file" id="video" name="video">
+                            </div>
+
+                            <!-- Durée -->
+                            <div class="form-group">
+                                <label for="duree">Durée estimée (en heures)</label>
+                                <input type="number" class="form-control" id="duree" name="duree" min="0" step="0.5">
+                            </div>
+
+                            <!-- Prérequis -->
+                            <div class="form-group">
+                                <label for="prerequis">Prérequis</label>
+                                <textarea class="form-control" id="prerequis" name="prerequis" rows="3"></textarea>
+                            </div>
+
+                            <!-- Objectifs -->
+                            <div class="form-group">
+                                <label for="objectifs">Objectifs d'apprentissage</label>
+                                <textarea class="form-control" id="objectifs" name="objectifs" rows="3"></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary">Créer le cours</button>
+                                <a href="{% url 'instructor:courses' %}" class="btn btn-secondary">Annuler</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+// Initialisation de l'éditeur de texte riche pour la description
+$(document).ready(function() {
+    $('#description').summernote({
+        height: 200,
+        toolbar: [
+            ['style', ['style']],
+            ['font', ['bold', 'italic', 'underline', 'clear']],
+            ['fontname', ['fontname']],
+            ['color', ['color']],
+            ['para', ['ul', 'ol', 'paragraph']],
+            ['table', ['table']],
+            ['insert', ['link', 'picture']],
+            ['view', ['fullscreen', 'codeview']]
+        ]
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}
